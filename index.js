@@ -104,21 +104,30 @@ app.post('/api/persons', (request, response) => {
     })
   }
 
-  if (persons.find(p => p.name === body.name)) {
-    return response.status(400).json({
-      error: 'name already exists in phonebook'
-    })
-  }
+  // if (persons.find(p => p.name === body.name)) {
+  //   return response.status(400).json({
+  //     error: 'name already exists in phonebook'
+  //   })
+  // }
 
-  const person = {
-    id: generateID(),
+  // const person = {
+  //   id: generateID(),
+  //   name: body.name,
+  //   number: body.number,
+  // }
+
+  // persons = persons.concat(person)
+
+  // response.json(person)
+
+  const person = new Person({
     name: body.name,
-    number: body.number,
-  }
+    number: body.number
+  })
 
-  persons = persons.concat(person)
-
-  response.json(person)
+  person.save().then(savedPerson => {
+    response.json(savedPerson)
+  })
 })
 
 const PORT = process.env.PORT
