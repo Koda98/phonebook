@@ -5,6 +5,17 @@ const cors = require('cors')
 const Person = require('./models/phonebook')
 
 const app = express()
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id'})
+  }
+
+  next (error)
+}
+
 app.use(cors())
 app.use(express.json())
 app.use(express.static('build'))
@@ -73,19 +84,27 @@ app.get('/api/persons/:id', (request, response) => {
   })
 })
 
-// app.delete('/api/persons/:id', (request, response) => {
-//   const id = Number(request.params.id)
-//   persons = persons.filter(p => p.id !== id)
-
-//   response.status(204).end()
-// })
-
 app.delete('/api/persons/:id', (request, response) => {
   Person.findByIdAndRemove(request.params.id)
     .then(result => {
       response.status(204).end()
     })
-    // .catch(error => next(error))
+    .catch(error => next(error))
+})
+
+app.put('/api/persons/:id', (request, response, next) => {
+  const body = request.body
+
+  const person = {
+    name: body.name,
+    number: body.number
+  }
+
+  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+    .then(updatedPerson => {
+      response.json(updatedPerson)
+    })
+    .catch(error => next(error))
 })
 
 const generateID = () => {
@@ -112,22 +131,6 @@ app.post('/api/persons', (request, response) => {
     })
   }
 
-  // if (persons.find(p => p.name === body.name)) {
-  //   return response.status(400).json({
-  //     error: 'name already exists in phonebook'
-  //   })
-  // }
-
-  // const person = {
-  //   id: generateID(),
-  //   name: body.name,
-  //   number: body.number,
-  // }
-
-  // persons = persons.concat(person)
-
-  // response.json(person)
-
   const person = new Person({
     name: body.name,
     number: body.number
@@ -137,6 +140,8 @@ app.post('/api/persons', (request, response) => {
     response.json(savedPerson)
   })
 })
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
