@@ -70,12 +70,14 @@ app.get('/api/persons', (request, response) => {
 })
 
 app.get('/info', (request, response) => {
-  const numPersons = persons.length
   date = new Date()
-  response.send(`
-    <p>Phonebook has info for ${numPersons} people</p>
-    <p>${date}</p>
-  `)
+  Person.find({}).then(persons => {
+    const numPersons = persons.length
+    response.send(`
+      <p>Phonebook has info for ${numPersons} people</p>
+      <p>${date}</p>
+    `)
+  })
 })
 
 app.get('/api/persons/:id', (request, response) => {
