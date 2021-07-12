@@ -39,29 +39,6 @@ app.use(morgan((tokens, request, response) => {
   ].join(' ')
 }))
 
-let persons = [
-  {
-    id: 1,
-    name: "Arto Hellas",
-    number: "040-123456"
-  },
-  {
-    id: 2,
-    name: "Ada Lovelace",
-    number: "39-44-5323523"
-  },
-  {
-    id: 3,
-    name: "Dan Abramov",
-    number: "12-43-234345"
-  },
-  {
-    id: 4,
-    name: "Mary Poppendieck",
-    number: "39-23-6423122"
-  }
-]
-
 app.get('/', (request, response) => {
   response.send('<h1>Phonebook<h1>')
 })
@@ -73,7 +50,7 @@ app.get('/api/persons', (request, response) => {
 })
 
 app.get('/info', (request, response) => {
-  date = new Date()
+  const date = new Date()
   Person.find({}).then(persons => {
     const numPersons = persons.length
     response.send(`
@@ -89,9 +66,9 @@ app.get('/api/persons/:id', (request, response) => {
   })
 })
 
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndRemove(request.params.id)
-    .then(result => {
+    .then(() => {
       response.status(204).end()
     })
     .catch(error => next(error))
@@ -110,15 +87,6 @@ app.put('/api/persons/:id', (request, response, next) => {
     })
     .catch(error => next(error))
 })
-
-const generateID = () => {
-  const maxID = Number.MAX_SAFE_INTEGER
-  do {
-    newID = Math.floor(Math.random() * maxID)
-  } while (persons.find(p => p.id === newID))
-
-  return newID
-}
 
 app.post('/api/persons', (request, response, next) => {
   const body = request.body

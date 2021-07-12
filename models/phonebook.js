@@ -10,7 +10,7 @@ mongoose.connect(url, {
   useUnifiedTopology: true,
   useFindAndModify: false,
   useCreateIndex: true
-}).then(result => {
+}).then(() => {
   console.log('Connected to MongoDB')
 }).catch((error) => {
   console.log('Error connecting to MongoDB:', error.message)
@@ -30,7 +30,7 @@ const personSchema = new mongoose.Schema({
   }
 })
 
-personSchema.plugin(uniqueValidator);
+personSchema.plugin(uniqueValidator)
 
 personSchema.set('toJSON', {
   transform: (document, returnedObject) => {
